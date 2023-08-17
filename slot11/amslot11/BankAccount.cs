@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,33 +6,57 @@ using System.Threading.Tasks;
 
 namespace slot11.amslot11
 {
-    public delegate void UpdateBalance(decimal newBalance);
+
 
     public class BankAccount
     {
         private decimal balance;
-        private event UpdateBalance BalanceChanged;
         public decimal Balance
         {
-            get => balance;
-            set => balance = value;
-        }
-        public void Deposit(decimal amount)
-        {
-            if (amount > 0)
+            get { return balance; }
+            private set
             {
-                balance += amount;
-                BalanceChanged(amount);
+                if (value != balance)
+                {
+                    balance = value;
+                    OnBalanceChanged();
+                }
             }
         }
-        public void Withdraw(decimal amount)
+        public event EventHandler SoDuThayDoi;
+
+        protected virtual void OnBalanceChanged()
         {
-            if (amount > 0 && amount <= balance)
-            {
-                balance -= amount;
-                BalanceChanged(-amount);
-            }
+            SoDuThayDoi?.Invoke(this, EventArgs.Empty);
         }
 
+        public void Deposit(decimal amount)
+        {
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Amount must be positive.", nameof(amount));
+
+            }
+            Balance += amount;
+        }
+
+
+
+
+        public void Withdraw(decimal amount)
+        {
+            if (amount <= 0)
+            {
+                throw new ArgumentException("Amount must be positive.", nameof(amount));
+            }
+
+            if (amount > Balance)
+            {
+                throw new InvalidOperationException("Insufficient balance.");
+            }
+
+            Balance -= amount;
+        }
     }
+
 }
